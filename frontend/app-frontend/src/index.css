@@ -1,0 +1,18 @@
+@import "tailwindcss";
+/* Importación de la fuente Nunito Sans desde el archivo local */
+@font-face {
+  font-family: 'NunitoSans';/* Nombre de la fuente */
+  src: url('../assets/fonts/NunitoSans-VariableFont_wght.ttf') format('truetype');/* Fuente variable de Nunito Sans */
+  font-weight: 100 1000; /* Variable weight support */
+  font-style: normal; /* Indica que el estilo normal */
+  font-display: swap; /* Mejora la carga de fuentes */
+}
+
+body {
+  font-family: 'NunitoSans', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+
+/* archivo: variables.css */

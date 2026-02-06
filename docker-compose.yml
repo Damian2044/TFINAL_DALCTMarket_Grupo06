@@ -36,5 +36,12 @@ services:
       DB_TIMEZONE: America/Guayaquil
     ports:
       - "8000:8000"
+
+  servicio-frontend:
+    container_name: servicio-frontend
+    build: ./frontend
+    ports:
+      - "5173:5173"
+
 volumes:
   dalctmarket-data:
