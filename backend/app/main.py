@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from fastapi.requests import Request
 from app.configuracionGeneral.seguridadJWT import protegerRuta
 from app.database import Base,engine,obtenerSesionDirecta
+from fastapi.middleware.cors import CORSMiddleware
 
 # Librerias de rutas
 from app.Usuarios.controllers.usuarioController import router as controladorUsuarios
@@ -37,6 +38,15 @@ app = FastAPI(
     description="Backend de DALCT Market",
     version="0.1",
 )
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],      # Permite cualquier origen
+    allow_credentials=True,   # Permite cookies y headers de autenticación
+    allow_methods=["*"],      # Permite GET, POST, PUT, DELETE, OPTIONS...
+    allow_headers=["*"],      # Permite todos los headers
+)
+
 
 @app.on_event("startup")
 async def startup_event():
