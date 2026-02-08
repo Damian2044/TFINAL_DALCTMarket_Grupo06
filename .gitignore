@@ -23,3 +23,5 @@ env/
 
 *.pdf
 
+# ignorar zip
+*.zip
