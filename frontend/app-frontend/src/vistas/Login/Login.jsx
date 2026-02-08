@@ -1,8 +1,8 @@
 import { useForm } from 'react-hook-form'
-//import { iniciarSesionServicio } from '@/servicios/servicioLogin'
 import { useNavigate } from 'react-router-dom'
 import { useEffect,useState, useContext } from 'react'
 import CampoContrasena from '@/vistas/Login/CampoContrasena.jsx'
+import ForzarCambioContrasena from '@/componentes/ForzarCambioContrasena.jsx'
 import '@/vistas/Login/Login.css'
 import { iniciarSesion} from '@/servicios/serviciosUsuarios'
 import { JwtContext } from '@/context/jwtContext'
@@ -18,22 +18,34 @@ export default function Login() {
   const [mensaje, setMensaje] = useState(null)
   const limpiarMensaje = () => { if (mensaje) setMensaje(null) }
   const { guardarSesion, usuario } = useContext(JwtContext)
+  const [forzarCambio, setForzarCambio] = useState(false);
+  const [credenciales, setCredenciales] = useState({ usuario: '', contrasenia: '' });
 
   useEffect(() => {
-    if (usuario) {
+    // Solo navegar automáticamente si hay usuario, no hay forzarCambioClave y NO hay mensaje de éxito
+    const forzarCambioClave = sessionStorage.getItem("forzarCambioClave") === "true";
+    if (usuario && !forzarCambioClave && !(mensaje && mensaje.tipo === 'exito')) {
       navigate("/inicio", { replace: true })
     }
-  }, [usuario, navigate])
+  }, [usuario, navigate, mensaje])
 
   const manejarInicioSesion = async (datos) => {
     try {
       const respuesta = await iniciarSesion(datos.usuario, datos.contrasenia)
       if (respuesta.access_token) {
-        guardarSesion(respuesta.access_token)
+        // Guardar el token SIEMPRE para que el modal funcione correctamente
+        guardarSesion(respuesta.access_token);
+        // Si usuario y contraseña son iguales, forzar cambio y NO navegar
+        if (datos.usuario === datos.contrasenia) {
+          setCredenciales({ usuario: datos.usuario, contrasenia: datos.contrasenia });
+          setForzarCambio(true);
+          sessionStorage.setItem("forzarCambioClave", "true");
+          return;
+        }
         setMensaje({ tipo: 'exito', texto: '¡Inicio de sesión exitoso!' })
         setTimeout(() => {
           navigate("/inicio", { replace: true })
-        }, 500)
+        }, 2000)
       } else {
         setMensaje({ tipo: 'error', texto: 'Usuario o contraseña incorrectos' })
       }
@@ -41,6 +53,27 @@ export default function Login() {
       setMensaje({ tipo: 'error', texto: error.response?.data?.detail || 'Usuario o contraseña incorrectos' })
     }
   }
+
+  // Handler para cuando el cambio de contraseña es exitoso
+  const handleCambioExitoso = async (nuevaContrasenia) => {
+    setForzarCambio(false);
+    sessionStorage.removeItem("forzarCambioClave");
+    // Realiza login con la nueva contraseña
+    try {
+      const resp = await iniciarSesion(credenciales.usuario, nuevaContrasenia);
+      if (resp.access_token) {
+        guardarSesion(resp.access_token);
+        setMensaje({ tipo: 'exito', texto: 'Contraseña actualizada. ¡Inicio de sesión exitoso!' });
+        setTimeout(() => {
+          navigate("/inicio", { replace: true });
+        }, 2000);
+      } else {
+        setMensaje({ tipo: 'error', texto: 'No se pudo iniciar sesión con la nueva contraseña.' });
+      }
+    } catch {
+      setMensaje({ tipo: 'error', texto: 'No se pudo iniciar sesión con la nueva contraseña.' });
+    }
+  };
 
   return(
     <div className="contenedorLogin">
@@ -68,6 +101,13 @@ export default function Login() {
           {mensaje.texto}
         </div>
       )}
+      {/* Modal de forzar cambio de contraseña si usuario==contraseña */}
+      <ForzarCambioContrasena
+        usuario={credenciales.usuario}
+        contrasenia={credenciales.contrasenia}
+        visible={forzarCambio}
+        onCambioExitoso={handleCambioExitoso}
+      />
     </div>
   )
 }

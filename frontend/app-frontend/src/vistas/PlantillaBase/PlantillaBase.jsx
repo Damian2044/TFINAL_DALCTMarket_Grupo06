@@ -8,6 +8,7 @@ import { rutasApp, rutasPorRol } from "@/permisos/rutasPorRol";
 import "@/vistas/PlantillaBase/PlantillaBase.css";
 
 export default function PlantillaBase({ componente }) {
+  
   const ubicacion = useLocation();
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [modoManual, setModoManual] = useState(false);

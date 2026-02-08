@@ -3,13 +3,11 @@ import { FaCogs, FaUser, FaBoxes, FaFileInvoiceDollar } from "react-icons/fa";
 import { TbReportSearch } from "react-icons/tb";
 import inicioIcono from "@/assets/imagenes/inicio.svg";
 import clienteIcono from "@/assets/imagenes/cliente.png";
-import productosIcono from "@/assets/imagenes/productos.svg";
 import ventasIcono from "@/assets/imagenes/ventas.svg";
-import reportesIcono from "@/assets/imagenes/reportes.png";
-import usuariosIcono from "@/assets/imagenes/usuarios.svg";
 import promocionesIcono from "@/assets/imagenes/promociones.png";
 import categorias from "@/assets/imagenes/categorias.png";
 import Inicio from "@/vistas/Inicio/Inicio.jsx"
+import Usuarios from "../vistas/Usuarios/Usuarios";
 
 
 // import ParametrosSistema from "@/vistas/parametrosSistema/ParametrosSistema.jsx"
@@ -29,17 +27,17 @@ export const rutasApp= {
     icono: inicioIcono,
     componente: <Inicio />
   },
+  Usuarios: {
+    path: "/usuarios",
+    etiqueta: "Usuarios",
+    icono: <FaUser />,
+    componente: <Usuarios />
+  },
   ParametrosSistema: {
     path: "/parametros-sistema",
     etiqueta: "Parámetros Sistema",
     icono: <FaCogs />,
     // componente: <ParametrosSistema />
-  },
-  Usuarios: {
-    path: "/usuarios",
-    etiqueta: "Usuarios",
-    icono: <FaUser />,
-    // componente: <GestionUsuarios />
   },
   Categorias: {
     path: "/categorias",
@@ -89,8 +87,8 @@ export const rutasApp= {
 
 export const rutasPorRol = {
   Inicio: ["Administrador", "Bodeguero", "Cajero"],
-  ParametrosSistema: ["Administrador"],
   Usuarios: ["Administrador"],
+  ParametrosSistema: ["Administrador"],
   Productos: ["Administrador", "Bodeguero", "Cajero"],
   Categorias: ["Administrador", "Bodeguero", "Cajero"],
   Inventario: ["Administrador", "Bodeguero", "Cajero"],

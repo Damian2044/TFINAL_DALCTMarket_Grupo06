@@ -7,23 +7,41 @@ import jwtDecode from "jwt-decode";
 const JwtContext = createContext();
 
 function JwtProvider({ children }) {
-  const [jwt, setJwt] = useState(null);
-  const [usuario, setUsuario] = useState(null);
+  const [jwt, setJwt] = useState(() => sessionStorage.getItem("jwt"));
+  const [usuario, setUsuario] = useState(() => {
+    const usuarioGuardado = sessionStorage.getItem("usuario");
+    if (usuarioGuardado) {
+      try {
+        return JSON.parse(usuarioGuardado);
+      } catch {
+        sessionStorage.removeItem("usuario");
+      }
+    }
+    const token = sessionStorage.getItem("jwt");
+    if (token) {
+      try {
+        const usuarioDecodificado = jwtDecode(token);
+        sessionStorage.setItem("usuario", JSON.stringify(usuarioDecodificado));
+        return usuarioDecodificado;
+      } catch {
+        sessionStorage.removeItem("usuario");
+      }
+    }
+    return null;
+  });
 
   useEffect(() => {
-  const token = sessionStorage.getItem("jwt");
-  if (token) {
-      setJwt(token);
+    if (jwt && !usuario) {
       try {
-      const usuarioDecodificado = JSON.parse(sessionStorage.getItem("usuario")) || jwtDecode(token);
-      setUsuario(usuarioDecodificado);
-      sessionStorage.setItem("usuario", JSON.stringify(usuarioDecodificado)); // aseguras persistencia
+        const usuarioDecodificado = jwtDecode(jwt);
+        setUsuario(usuarioDecodificado);
+        sessionStorage.setItem("usuario", JSON.stringify(usuarioDecodificado));
       } catch {
-      setUsuario(null);
-      sessionStorage.removeItem("usuario");
+        setUsuario(null);
+        sessionStorage.removeItem("usuario");
       }
-  }
-  }, []);
+    }
+  }, [jwt, usuario]);
 
 
   // Iniciar sesión: guarda el JWT y el usuario decodificado
