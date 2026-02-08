@@ -34,10 +34,11 @@ def iniciarSesion(request: OAuth2PasswordRequestForm = Depends(),# Usa form-data
 def iniciarSesion(request: IniciarSesionRequest,dbSession=Depends(obtenerSesion)):# Usa cuerpo JSON
     return validarLogin(request.username, request.password, dbSession)
 
-router = APIRouter(dependencies=[Depends(protegerRuta("Usuarios", "ALL"))])# Protege todas las rutas módulo Usuarios solo administradores
+router = APIRouter()# Protege todas las rutas módulo Usuarios solo administradores
 
 # Operaciones con usuario
 @router.get("/", tags=["Usuarios"],
+            dependencies=[Depends(protegerRuta("Usuarios", "GET"))],
             summary="Obtener todos los usuarios",
             status_code=200,
             response_model=respuestaApi)
@@ -46,6 +47,7 @@ async def obtenerTodosLosUsuarios(dbSession=Depends(obtenerSesion)):
     return usuarioService.listarUsuarios()
 
 @router.get("/{idUsuario}", tags=["Usuarios"],
+            dependencies=[Depends(protegerRuta("Usuarios", "GET"))],
             summary="Obtener un usuario por id",
             status_code=200,
             response_model=respuestaApi)
@@ -56,6 +58,7 @@ async def obtenerUsuarioPorId(idUsuario: int, dbSession=Depends(obtenerSesion)):
 
 
 @router.post("/", tags=["Usuarios"],
+             dependencies=[Depends(protegerRuta("Usuarios", "POST"))],
              description="Crear un nuevo usuario",
              status_code=201,
              response_model=respuestaApi)
@@ -64,6 +67,7 @@ async def crearUsuario(usuario: UsuarioCrearSchema, dbSession=Depends(obtenerSes
     return usuarioService.crearUsuario(usuario)
 
 @router.put("/{idUsuario}", tags=["Usuarios"],
+            dependencies=[Depends(protegerRuta("Usuarios", "PUT"))],
             summary="Actualizar un usuario por id",
             status_code=200,
             response_model=respuestaApi)
@@ -72,6 +76,7 @@ async def actualizarUsuario(idUsuario: int, usuario: UsuarioActualizarSchema, db
     return usuarioService.modificarUsuario(idUsuario, usuario)
 
 @router.delete("/{idUsuario}", tags=["Usuarios"],
+               dependencies=[Depends(protegerRuta("Usuarios", "DELETE"))],
                summary="Eliminar un usuario como soft delete(inactivo) por id",
                status_code=200,
                response_model=respuestaApi)

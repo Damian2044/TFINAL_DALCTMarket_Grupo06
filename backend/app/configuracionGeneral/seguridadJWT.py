@@ -42,7 +42,7 @@ oauth2Scheme = OAuth2PasswordBearer(tokenUrl="/usuarios/loginSwagger",auto_error
 permisos = {
     "Prueba": {"Administrador": "ALL", "Bodeguero": "ALL", "Cajero": "ALL"},
     "ParametrosSistema": {"Administrador": "ALL", "Bodeguero": [], "Cajero": []},
-    "Usuarios": {"Administrador": "ALL", "Bodeguero": [], "Cajero": []},
+    "Usuarios": {"Administrador": ["ALL","GET","POST","PUT","DELETE"], "Bodeguero": ["PUT"], "Cajero": ["PUT"]},
     "Productos": {"Administrador": "ALL", "Bodeguero": "ALL", "Cajero": ["GET"]},
     "Inventario": {"Administrador": ["ALL","GET","POST","PUT","DELETE"], "Bodeguero": ["GET","POST","PUT"], "Cajero": ["GET"]},
     "Pedido": {"Administrador": ["ALL","GET","POST","PUT","DELETE"], "Bodeguero": ["ALL","GET","POST","PUT","DELETE"], "Cajero": []},
@@ -86,7 +86,6 @@ def protegerRuta(modulo: str, accion: str):
         rol=usuario.get("rol")
         print(rol)
         rolPermiso=permisos.get(modulo, {}).get(rol, [])
-        print(rolPermiso)
         if rolPermiso=="ALL" or accion in rolPermiso:
             return usuario
         else:
