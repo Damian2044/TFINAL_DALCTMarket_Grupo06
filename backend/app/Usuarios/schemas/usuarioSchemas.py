@@ -30,7 +30,11 @@ class UsuarioBaseSchema(BaseModel):
     passwordUsuario: str = Field(..., min_length=8,example="Cl@veSegura123")
 
     @field_validator("passwordUsuario")
-    def validar_password(cls, v: str) -> str:
+    def validar_password(cls, v: str, info) -> str:
+        cedula = info.data.get("cedulaUsuario")
+        if cedula and v == cedula:
+            # Si la contraseña es igual a la cédula, no validar reglas
+            return v
         return validarPassword(v)
 
 
