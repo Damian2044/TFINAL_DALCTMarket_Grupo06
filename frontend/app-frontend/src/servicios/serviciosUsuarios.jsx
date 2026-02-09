@@ -19,6 +19,7 @@ export async function iniciarSesion(username, password) {
 // Función para el manejo de usuarios
 // **********************************
 
+// Función para obtener todos los usuarios
 export async function obtenerUsuariosServicio() {
     try {
         const response = await api.get(ruta);
@@ -29,6 +30,7 @@ export async function obtenerUsuariosServicio() {
     }
 }
 
+// Función para obtener un usuario por su ID
 export async function obtenerUsuarioPorIdServicio(id) {
     try {
         const response = await api.get(`${ruta}/${id}/`)
@@ -39,6 +41,7 @@ export async function obtenerUsuarioPorIdServicio(id) {
     }
 }
 
+// Función para crear un nuevo usuario
 export async function crearUsuarioServicio(usuario) {
     try {
         const response = await api.post(ruta, usuario)
@@ -49,6 +52,7 @@ export async function crearUsuarioServicio(usuario) {
     }
 }
 
+// Función para actualizar un usuario existente
 export async function actualizarUsuarioServicio(id, usuario) {
     try {
         const response = await api.put(`${ruta}/${id}/`, usuario)
@@ -59,7 +63,7 @@ export async function actualizarUsuarioServicio(id, usuario) {
     }
 }
 
-
+// Función para deshabilitar un usuario (eliminarlo)
 export async function deshabilitarUsuarioServicio(id) {
     try {
         const response = await api.delete(`${ruta}/${id}/`)
