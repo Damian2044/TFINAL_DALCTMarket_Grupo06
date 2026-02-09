@@ -18,6 +18,61 @@ export default function PlantillaBase({ componente }) {
   // Flecha abajo en menú lateral
   const [mostrarFlechaMenu, setMostrarFlechaMenu] = useState(false);
   const menuRef = useRef(null);
+  const [logoNegocio, setLogoNegocio] = useState(null);
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+  // Consultar logoNegocio periódicamente
+  useEffect(() => {
+    let cancelado = false;
+    async function fetchLogo() {
+      try {
+        const resp = await import("@/servicios/serviciosParametrosSistema").then(m => m.obtenerParametrosServicio());
+        if (!cancelado) {
+          if (resp.success && Array.isArray(resp.data)) {
+            const logoParam = resp.data.find(p => p.claveParametro === "logoNegocio" && p.activoParametro);
+            if (logoParam && logoParam.valorParametro) {
+              setLogoNegocio(logoParam.valorParametro);
+            } else {
+              setLogoNegocio(null);
+            }
+          } else {
+            setLogoNegocio(null);
+          }
+        }
+      } catch {
+        if (!cancelado) setLogoNegocio(null);
+      }
+    }
+    fetchLogo();
+    const intervalo = setInterval(fetchLogo, 5000);
+    return () => {
+      cancelado = true;
+      clearInterval(intervalo);
+    };
+  }, [usuario]);
+
+  // Verificar sesión al montar, cuando cambie el storage y periódicamente
+  useEffect(() => {
+    const verificarSesion = () => {
+      const token = sessionStorage.getItem("jwt");
+      if (!token) {
+        borrarSesion();
+      }
+    };
+
+    // Revisar al montar
+    verificarSesion();
+
+    // Revisar cuando cambie el storage (otros tabs o axios)
+    window.addEventListener("storage", verificarSesion);
+
+    // Revisar periódicamente cada 5 segundos
+    const intervalo = setInterval(verificarSesion, 5000);
+
+    return () => {
+      window.removeEventListener("storage", verificarSesion);
+      clearInterval(intervalo);
+    };
+  }, [borrarSesion]);
 
   useEffect(() => {
     const menu = menuRef.current;
@@ -78,8 +133,16 @@ export default function PlantillaBase({ componente }) {
         onMouseLeave={alSalirMouse}
       >
         <div className="areaLogo">
-          <img src={logoEmpresaIcono} alt="Logo" className="logo" />
-          
+          <img
+            src={logoNegocio ? `${API_URL}/imagenes/${logoNegocio}?t=${Date.now()}` : `${API_URL}/imagenes/logo.png`}
+            alt="Logo"
+            className="logo"
+            key={logoNegocio ? logoNegocio + Date.now() : 'default-logo'}
+            onError={e => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = logoEmpresaIcono;
+            }}
+          />
         </div>
         <nav className="menuNavegacion" ref={menuRef} style={{position:'relative'}}>
           {rutasDisponibles.map(modulo => {
@@ -137,7 +200,7 @@ function UsuarioMenu({ usuario, cerrarSesion }) {
       <button className="usuarioMenuBoton" onClick={() => setMenuAbierto(v => !v)}>
         <img src={usuarioIcono} alt="Usuario" className="iconoUsuario" />
         <span className="usuarioMenuNombre">{usuario ? usuario.cedula : ""}</span>
-        <span className="usuarioMenuHora">{` | Inicio: ${horaInicioSesion}`}</span>
+        {/*<span className="usuarioMenuHora">{` | Inicio: ${horaInicioSesion}`}</span>*/}
         <span className={`usuarioMenuFlecha${menuAbierto ? " abierto" : ""}`}>{/* SVG flecha abajo */}
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M4.5 6L8 9.5L11.5 6" stroke="#555" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

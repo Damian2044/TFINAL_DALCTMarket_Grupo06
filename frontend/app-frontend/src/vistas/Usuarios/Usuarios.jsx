@@ -38,9 +38,13 @@ export default function Usuarios() {
   console.log("Usuarios para la tabla:", usuarios);
   console.log("Usuarios filtrados:", usuariosFiltrados);
 
-  // Cargar usuarios al montar
+  // Cargar usuarios al montar y actualizar cada 5 segundos
   useEffect(() => {
     obtenerUsuarios();
+    const intervalo = setInterval(() => {
+      obtenerUsuarios();
+    }, 5000); // 5 segundos
+    return () => clearInterval(intervalo);
   }, []);
 
   // Enfocar y ocultar mensaje automáticamente
@@ -118,6 +122,12 @@ export default function Usuarios() {
   };
 
   const columnas = [
+    {
+      name: "ID",
+      selector: fila => fila.idUsuario,
+      sortable: true,
+      width: "80px",
+    },
     {
       name: "Cédula",
       selector: fila => fila.cedulaUsuario,
@@ -258,6 +268,8 @@ export default function Usuarios() {
                 <DataTable
                   columns={columnas}
                   data={usuariosFiltrados}
+                  defaultSortAsc={true}
+                  defaultSortFieldId={1}
                   pagination
                   highlightOnHover
                   striped

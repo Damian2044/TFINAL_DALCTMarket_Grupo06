@@ -278,7 +278,7 @@ export default function Productos() {
   const columnas = [
     { name: "ID", selector: fila => fila.producto?.idProducto, sortable: true, width: "60px", wrap: true, center: true },
     { name: "Nombre", selector: fila => fila.producto?.nombreProducto, sortable: true, wrap: true, width: "120px", style: { whiteSpace: "normal", wordBreak: "break-word", overflowWrap: "anywhere" } },
-    { name: "Categoría", selector: fila => fila.producto?.categoria?.nombreCategoria, sortable: true, wrap: true },
+    { name: "Categoría", selector: fila => fila.producto?.categoria?.nombreCategoria, sortable: true, wrap: true, width: "120px" },
     { name: "Proveedor", selector: fila => fila.producto?.proveedor?.razonSocial, sortable: true, wrap: true },
     { name: "Precio Venta", selector: fila => `$${Number(fila.producto?.precioUnitarioVenta || 0).toFixed(2)}`, sortable: true, wrap: true, center: true, width: "110px" },
     { name: "Precio Compra", selector: fila => `$${Number(fila.producto?.precioUnitarioCompra || 0).toFixed(2)}`, sortable: true, wrap: true, center: true, width: "110px" },

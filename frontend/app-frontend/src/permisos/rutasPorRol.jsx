@@ -5,20 +5,19 @@ import inicioIcono from "@/assets/imagenes/inicio.svg";
 import clienteIcono from "@/assets/imagenes/cliente.png";
 import ventasIcono from "@/assets/imagenes/ventas.svg";
 import promocionesIcono from "@/assets/imagenes/promociones.png";
-import categorias from "@/assets/imagenes/categorias.png";
+import categoriasIcono from "@/assets/imagenes/categorias.png";
+import proveedoresIcono from "@/assets/imagenes/proveedores.png";
 import Inicio from "@/vistas/Inicio/Inicio.jsx"
 import Usuarios from "../vistas/Usuarios/Usuarios";
-
-
-// import ParametrosSistema from "@/vistas/parametrosSistema/ParametrosSistema.jsx"
-// import GestionUsuarios from "@/vistas/gestionUsuarios/GestionUsuarios.jsx"
-// import Categorias from "@/vistas/categorias/Categorias.jsx"
-// import Productos from "@/vistas/productos/Productos.jsx"
-// import Pedidos from "@/vistas/pedidos/Pedidos.jsx"
-// import Ventas from "@/vistas/ventas/Ventas.jsx"
-// import Promociones from "@/vistas/promociones/Promociones.jsx"
-// import Clientes from "@/vistas/clientes/Clientes.jsx"
-// import Reportes from "@/vistas/reportes/Reportes.jsx"
+import Categorias from "@/vistas/Categorias/Categorias.jsx"
+import ParametrosSistema from "@/vistas/ParametrosSistema/ParametrosSistema.jsx"
+import Proveedores from "@/vistas/Proveedores/Proveedores.jsx"
+import Productos from "@/vistas/Productos/Productos.jsx"
+import Pedidos from "@/vistas/Pedido/Pedidos.jsx"
+import Ventas from "@/vistas/Ventas/Ventas.jsx"
+import Promociones from "@/vistas/Promociones/Promociones.jsx"
+import Clientes from "@/vistas/Clientes/Clientes.jsx"
+import Reportes from "@/vistas/Reportes/Reportes.jsx"
 
 export const rutasApp= {
   Inicio: {
@@ -27,59 +26,67 @@ export const rutasApp= {
     icono: inicioIcono,
     componente: <Inicio />
   },
+  ParametrosSistema: {
+    path: "/parametros-sistema",
+    etiqueta: "Parámetros Sistema",
+    icono: <FaCogs />,
+    componente: <ParametrosSistema />
+  },
   Usuarios: {
     path: "/usuarios",
     etiqueta: "Usuarios",
     icono: <FaUser />,
     componente: <Usuarios />
   },
-  ParametrosSistema: {
-    path: "/parametros-sistema",
-    etiqueta: "Parámetros Sistema",
-    icono: <FaCogs />,
-    // componente: <ParametrosSistema />
+  Proveedores: {
+    path: "/proveedores",
+    etiqueta: "Proveedores",
+    icono: proveedoresIcono,
+    componente: <Proveedores />
+
   },
   Categorias: {
     path: "/categorias",
     etiqueta: "Categorías",
-    icono: categorias,
-    // componente: <Categorias />
+    icono: categoriasIcono,
+    componente: <Categorias />
   },
   Productos: {
     path: "/productos",
     etiqueta: "Productos",
     icono: <FaBoxes />,
-    // componente: <Productos />
+    componente: <Productos />
   },
   Pedido: {
     path: "/pedidos",
-    etiqueta: "Pedidos",
+    etiqueta: "Pedidos y Compras",
     icono: <FaFileInvoiceDollar />,
-    // componente: <Pedidos />
-  },
-  Venta: {
-    path: "/ventas",
-    etiqueta: "Ventas",
-    icono: ventasIcono,
-    // componente: <Ventas />
+    componente: <Pedidos />
   },
   Promocion: {
     path: "/promociones",
     etiqueta: "Promociones",
     icono: promocionesIcono,
-    // componente: <Promociones />
+    componente: <Promociones />
   },
   Cliente: {
     path: "/clientes",
     etiqueta: "Clientes",
     icono: clienteIcono,
-    // componente: <Clientes />
+    componente: <Clientes />
   },
+  Venta: {
+    path: "/ventas",
+    etiqueta: "Ventas",
+    icono: ventasIcono,
+    componente: <Ventas />
+  },
+
   Reportes: {
     path: "/reportes",
     etiqueta: "Reportes",
     icono: <TbReportSearch />,
-    // componente: <Reportes />
+    componente: <Reportes />
   }
 }
 
@@ -87,13 +94,13 @@ export const rutasApp= {
 
 export const rutasPorRol = {
   Inicio: ["Administrador", "Bodeguero", "Cajero"],
-  Usuarios: ["Administrador"],
   ParametrosSistema: ["Administrador"],
-  Productos: ["Administrador", "Bodeguero", "Cajero"],
-  Categorias: ["Administrador", "Bodeguero", "Cajero"],
-  Inventario: ["Administrador", "Bodeguero", "Cajero"],
+  Usuarios: ["Administrador"],
+  Proveedores: ["Administrador", "Bodeguero"],
+  Categorias: ["Administrador", "Bodeguero"],
+  Productos: ["Administrador", "Bodeguero"],
   Pedido: ["Administrador", "Bodeguero"],
-  Promocion: ["Administrador", "Cajero"],
+  Promocion: ["Administrador"],
   Venta: ["Administrador", "Cajero"],
   Cliente: ["Administrador", "Cajero"],
   Caja: ["Administrador", "Cajero"],

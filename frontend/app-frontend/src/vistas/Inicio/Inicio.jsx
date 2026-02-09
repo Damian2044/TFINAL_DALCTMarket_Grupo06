@@ -4,33 +4,83 @@ import { FiUser, FiCalendar, FiClock, FiLogIn, FiUsers, FiBox, FiTag, FiDollarSi
 import "./Inicio.css";
 import minimercadoImagen from "@/assets/imagenes/minimercado.png";
 import { obtenerUsuariosServicio } from "@/servicios/serviciosUsuarios";
-
+import { obtenerCategoriasServicio } from "@/servicios/serviciosCategorias";
+import { obtenerProductosServicio } from "@/servicios/serviciosProductos";
+import { obtenerHistoricoVentasServicio } from "@/servicios/serviciosVentas";
 // Hook solo para Administrador
 function useMetricasAdmin(usuario) {
   const [metricas, setMetricas] = useState({
     totalUsuarios: 0,
-    totalProductos: 34,
-    totalCategorias: 8,
-    montoTotalVentas: 256000,
+    totalProductos: 0,
+    totalCategorias: 0,
+    montoTotalVentas: 0,
   });
 
   useEffect(() => {
-    if (usuario?.rol !== "Administrador") return; // solo para admin
+    if (usuario?.rol !== "Administrador") return;
 
-    async function fetchUsuarios() {
+    async function fetchMetricas() {
       try {
-        const respuesta = await obtenerUsuariosServicio();
-        const usuarios = respuesta.success ? respuesta.data || [] : [];
-         const usuariosActivos = usuarios.filter(u => u.activoUsuario); // solo activos
+        const [
+          respuestaUsuarios,
+          respuestaCategorias,
+          respuestaProductos,
+          respuestaVentas
+        ] = await Promise.all([
+          obtenerUsuariosServicio(),
+          obtenerCategoriasServicio(),
+          obtenerProductosServicio(),
+          obtenerHistoricoVentasServicio()
 
-        setMetricas((prev) => ({ ...prev, totalUsuarios: usuariosActivos.length }));
+        ]);
+
+        // 👥 Usuarios
+        const usuarios = respuestaUsuarios?.success
+          ? respuestaUsuarios.data || []
+          : [];
+        const usuariosActivos = usuarios.filter(u => u.activoUsuario);
+
+        // 📦 Categorías
+        const categorias = respuestaCategorias?.success
+          ? respuestaCategorias.data || []
+          : [];
+        const categoriasActivas = categorias.filter(c => c.activoCategoria);
+
+        // 📋 Producto
+        const productos = respuestaProductos?.success
+          ? respuestaProductos.data || []
+          : [];
+        const productosActivos = productos.filter(p => p.activoProducto); 
+        
+        // 💰 Venta
+        const ventas = respuestaVentas?.success 
+          ? respuestaVentas.data || [] : [];
+        const montoTotalVentas = ventas
+          .filter(v => v.estadoVenta === "COMPLETADA")
+          .reduce((total, v) => total + v.totalPagar, 0);
+        
+        setMetricas(prev => ({
+          ...prev,
+          totalUsuarios: usuariosActivos.length,
+          totalCategorias: categoriasActivas.length,
+          totalProductos: productosActivos.length,
+          montoTotalVentas: montoTotalVentas.toFixed(2),
+        }));
+
       } catch (error) {
-        setMetricas((prev) => ({ ...prev, totalUsuarios: 0 }));
+        setMetricas(prev => ({
+          ...prev,
+          totalUsuarios: 0,
+          totalCategorias: 0,
+          totalProductos: 0,
+          montoTotalVentas: 0,
+        }));
       }
-    }
+  }
 
-    fetchUsuarios();
+  fetchMetricas();
   }, [usuario]);
+
 
   return metricas;
 }

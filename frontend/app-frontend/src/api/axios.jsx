@@ -1,6 +1,7 @@
 import axios from "axios";
+
 const api=axios.create({
-    baseURL: "https://t02-03-dalctmarket-grupo06.onrender.com"//"http://localhost:8000"//import.meta.env.VITE_API_URL 
+    baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000",
 });
 
 api.interceptors.request.use((config) => {
@@ -14,3 +15,19 @@ api.interceptors.request.use((config) => {
     return config;
 });
 export default api;
+
+
+api.interceptors.response.use(
+    response => response,
+    error => {
+        const status = error.response?.status
+        const mensaje = error.response?.data?.message
+        console.error("Error en la respuesta:", error.response); // Agrega este log para verificar la respuesta de error
+        if (status === 401) {
+            sessionStorage.removeItem("jwt");
+            sessionStorage.removeItem("usuario");
+        }
+
+        return Promise.reject(error)
+    }
+)
