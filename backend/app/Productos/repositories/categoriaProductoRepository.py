@@ -1,7 +1,7 @@
 from app.Productos.models.categoriaProductoModel import CategoriaProducto
 from app.Productos.schemas.categoriaProductoSchemas import *
 from app.Productos.models.productoModel import Producto
-
+from sqlalchemy import func
 class CategoriaProductoRepository:
     def __init__(self, dbSession):
         self.dbSession = dbSession
@@ -13,9 +13,14 @@ class CategoriaProductoRepository:
         return self.dbSession.query(CategoriaProducto).filter(CategoriaProducto.idCategoriaProducto == idCategoria).first()
 
     def validarNombreExistente(self, nombre: str, excluirId: int = None):
-        query = self.dbSession.query(CategoriaProducto).filter(CategoriaProducto.nombreCategoria == nombre)
+        query = (
+            self.dbSession.query(CategoriaProducto)
+            .filter(func.lower(CategoriaProducto.nombreCategoria) == nombre.lower())
+        )
+
         if excluirId is not None:
             query = query.filter(CategoriaProducto.idCategoriaProducto != excluirId)
+
         return query.first()
 
     def crearCategoria(self, categoria: CategoriaProductoCrearSchema):

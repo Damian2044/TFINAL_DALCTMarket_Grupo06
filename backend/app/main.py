@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends
+from fastapi.staticfiles import StaticFiles
 from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.requests import Request
@@ -31,13 +32,15 @@ from app.Venta.repositories.promocionRepository import PromocionRepository
 from app.Caja.controllers.cajaController import router as controladorCaja
 from app.Venta.controllers.ventaController import router as controladorVenta
 from app.Reportes.controllers.reporteController import router as controladorReportes
+import os
 
-
+ 
 app = FastAPI(
     title="API DALCT Market",
     description="Backend de DALCT Market",
     version="0.1",
 )
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -71,6 +74,16 @@ async def startup_event():
     # Promociones de ejemplo (una pasada y otra vigente)
     PromocionRepository(obtenerSesionDirecta()).crearPromocionesIniciales()
 
+
+
+# Montar imágenes correctamente en backend/app/imagenes
+carpetaImagenes = os.path.abspath(os.path.join(os.path.dirname(__file__), "imagenes"))
+if not os.path.exists(carpetaImagenes):
+    os.makedirs(carpetaImagenes)
+app.mount("/imagenes", StaticFiles(directory=carpetaImagenes), name="imagenes")
+
+   
+    
 @app.get("/", tags=["Inicio"], summary="Inicio", status_code=200, description="API DALCT Market")
 def inicio():
     return {"mensaje": "API DALCT Market está lista...!"}

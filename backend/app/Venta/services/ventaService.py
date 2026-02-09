@@ -185,31 +185,10 @@ class VentaService:
         venta = self.repo.obtenerPorId(idVenta)
         if not venta:
             raise HTTPException(status_code=404, detail="Venta no encontrada")
-        # Solo se permiten anulaciones de ventas del día actual (zona de Quito)
-        from datetime import datetime, timezone, timedelta
-        quitoTZ = timezone(timedelta(hours=-5))
-        venta_fecha = venta.fechaVenta
-        try:
-            venta_fecha_local = venta_fecha.astimezone(quitoTZ).date()
-        except Exception:
-            venta_fecha_local = venta_fecha.date()
-        hoy = datetime.now(quitoTZ).date()
-        if venta_fecha_local != hoy:
-            raise HTTPException(status_code=400, detail="Solo se pueden anular ventas del día actual")
-        if rol != "Administrador" and venta.idUsuarioVenta != idUsuario:
-            raise HTTPException(status_code=403, detail="No tiene permisos para anular esta venta")
-        # Restricción adicional para Cajero: la caja asociada a la venta debe estar abierta hoy
+        # Solo se permiten anulaciones de ventas del Admin
         if rol != "Administrador":
-            cajas_hoy = self.cajaRepo.listarCajasHoy(idUsuario, False)
-            if not cajas_hoy:
-                raise HTTPException(status_code=400, detail="No se ha abierto una caja para hoy; no se pueden anular ventas")
-            caja_abierta = None
-            for c in cajas_hoy:
-                if getattr(c, 'idCaja', None) == venta.idCaja and getattr(c, 'estadoCaja', '') == 'ABIERTA':
-                    caja_abierta = c
-                    break
-            if not caja_abierta:
-                raise HTTPException(status_code=400, detail="La caja asociada a esta venta no está abierta; no se pueden anular ventas")
+            raise HTTPException(status_code=403, detail="No tiene permisos para anular esta venta")
+
         res = self.repo.anularVenta(idVenta)
         if res is None:
             raise HTTPException(status_code=404, detail="Venta no encontrada")
@@ -219,6 +198,8 @@ class VentaService:
         data = VentaRespuestaSchema.from_orm(res)
         actor = identificarUsuarioString(usuario)
         return respuestaApi(success=True, message=f"Venta anulada por {actor}", data=data)
+
+
 
     def generarComprobanteVenta(self, idVenta: int, usuario: dict):
         """Genera un comprobante con parámetros del sistema y la venta indicada."""
