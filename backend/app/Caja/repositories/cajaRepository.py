@@ -1,4 +1,4 @@
-from datetime import datetime, timezone, timedelta, date
+from datetime import datetime, timezone, timedelta, date,time
 
 from app.Inventario.repositories.inventarioRepository import InventarioRepository
 from app.Productos.models.productoModel import Producto
@@ -15,7 +15,8 @@ class CajaRepository:
         # Verificar que no exista ya una caja del mismo dia para el usuario
         quitoTZ = timezone(timedelta(hours=-5))
         hoy = datetime.now(quitoTZ).date()
-        existe_hoy = self.dbSession.query(CajaHistorial).filter(CajaHistorial.idUsuarioCaja == idUsuarioCaja).filter(CajaHistorial.fechaAperturaCaja >= datetime.combine(hoy, datetime.min.time()).astimezone(quitoTZ)).first()
+        inicio = datetime.combine(hoy, datetime.min.time(),tzinfo=quitoTZ) 
+        existe_hoy = self.dbSession.query(CajaHistorial).filter(CajaHistorial.idUsuarioCaja == idUsuarioCaja).filter(CajaHistorial.fechaAperturaCaja >= inicio).first()
         if existe_hoy:
             return {"error": "caja_ya_abierta_hoy"}
         nuevo = CajaHistorial(
@@ -134,8 +135,11 @@ class CajaRepository:
     def listarCajasHoy(self, idUsuario: int = None, esAdmin: bool = False):
         tz = timezone(timedelta(hours=-5))
         hoy = datetime.now(tz).date()
-        inicio = datetime.combine(hoy, datetime.min.time()).astimezone(tz)
-        fin = datetime.combine(hoy, datetime.max.time()).replace(hour=23, minute=59, second=59, microsecond=0).astimezone(tz)
+        #inicio = datetime.combine(hoy, datetime.min.time()).astimezone(tz)
+        #fin = datetime.combine(hoy, datetime.max.time()).replace(hour=23, minute=59, second=59, microsecond=0).astimezone(tz)
+        inicio = datetime.combine(hoy, datetime.min.time(),tzinfo=tz)
+        fin = datetime.combine(hoy, time(23, 59, 59, microsecond=0),tzinfo=tz)
+        
         query = self.dbSession.query(CajaHistorial).filter(CajaHistorial.fechaAperturaCaja >= inicio, CajaHistorial.fechaAperturaCaja <= fin)
         if not esAdmin and idUsuario:
             query = query.filter(CajaHistorial.idUsuarioCaja == idUsuario)

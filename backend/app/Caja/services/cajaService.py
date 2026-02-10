@@ -61,9 +61,12 @@ class CajaService:
             if caja.idUsuarioCaja != idUsuario:
                 raise HTTPException(status_code=403, detail="No tiene permisos para cerrar esta caja")
             # Validar que la apertura sea hoy
-            from datetime import datetime
-            tz = datetime.now().astimezone()
-            hoy = datetime.now(tz.tzinfo).date()
+            from datetime import datetime, timezone, timedelta
+            #tz = datetime.now().astimezone()
+            #hoy = datetime.now(tz.tzinfo).date()
+            tz = timezone(timedelta(hours=-5))
+            hoy = datetime.now(tz).date()
+
             if caja.fechaAperturaCaja.date() != hoy:
                 raise HTTPException(status_code=400, detail=f"Solo puede cerrar cajas abiertas hoy. Usuario: {actor}")
             resultado = self.repo.cerrarCaja(idCaja, monto_final, closedBy=actor, admin=False)
@@ -107,6 +110,7 @@ class CajaService:
         idUsuario = usuario.get("idUsuario")
         esAdmin = rol == "Administrador"
         cajas = self.repo.listarCajasHoy(idUsuario if not esAdmin else None, esAdmin)
+        print(f"usuario: {usuario}, rol: {rol}, idUsuario: {idUsuario}, esAdmin: {esAdmin}, cajas encontradas: {len(cajas)}")
         if not cajas:
             return respuestaApi(success=True, message="No se han abierto cajas hoy", data=[])
         for c in cajas:

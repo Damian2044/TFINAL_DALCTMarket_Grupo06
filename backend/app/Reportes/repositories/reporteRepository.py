@@ -8,7 +8,7 @@ from app.Clientes.modells.clienteModel import Cliente
 from sqlalchemy import func
 from datetime import datetime, timedelta
 from sqlalchemy.orm import joinedload
-
+from datetime import datetime,time, timezone, timedelta
 class ReporteRepository:
     def __init__(self, dbSession):
         self.dbSession = dbSession
@@ -41,8 +41,11 @@ class ReporteRepository:
         ).join(Producto, Producto.idProducto == DetalleVenta.idProducto)
         q = q.join(CategoriaProducto, CategoriaProducto.idCategoriaProducto == Producto.idCategoriaProducto)
         q = q.join(Venta, Venta.idVenta == DetalleVenta.idVenta)
-        inicio = datetime.combine(fechaInicio, datetime.min.time())
-        fin = datetime.combine(fechaFin, datetime.max.time())
+        #inicio = datetime.combine(fechaInicio, datetime.min.time())
+        #fin = datetime.combine(fechaFin, datetime.max.time())
+        tz = timezone(timedelta(hours=-5))  # Quito
+        inicio = datetime.combine(fechaInicio, time.min, tzinfo=tz)
+        fin = datetime.combine(fechaFin, time(23,59,59,999999), tzinfo=tz)
         q = q.filter(Venta.fechaVenta >= inicio, Venta.fechaVenta <= fin)
         if idProducto is not None:
             q = q.filter(DetalleVenta.idProducto == idProducto)
@@ -52,10 +55,13 @@ class ReporteRepository:
         return q.all()
 
     def resumen_caja_diaria(self, fecha: datetime.date, idUsuarioCaja: int):
-        from datetime import datetime
-        tz = datetime.now().astimezone().tzinfo
-        inicio = datetime.combine(fecha, datetime.min.time()).astimezone(tz)
-        fin = datetime.combine(fecha, datetime.max.time()).replace(hour=23, minute=59, second=59, microsecond=0).astimezone(tz)
+        #tz = datetime.now().astimezone().tzinfo
+        #inicio = datetime.combine(fecha, datetime.min.time()).astimezone(tz)
+        #fin = datetime.combine(fecha, datetime.max.time()).replace(hour=23, minute=59, second=59, microsecond=0).astimezone(tz)
+        tz = timezone(timedelta(hours=-5))
+        inicio = datetime.combine(fecha, time.min, tzinfo=tz)
+        fin = datetime.combine(fecha, time(23,59,59,999999), tzinfo=tz)
+
         # Buscar la(s) caja(s) del cajero en la fecha
         query = self.dbSession.query(CajaHistorial).filter(CajaHistorial.fechaAperturaCaja >= inicio, CajaHistorial.fechaAperturaCaja <= fin, CajaHistorial.idUsuarioCaja == idUsuarioCaja)
         cajas = query.options(joinedload(CajaHistorial.usuario)).all()
@@ -66,7 +72,9 @@ class ReporteRepository:
         return cajas
 
     def clientes_frecuentes(self, dias=30, minVentas=3, minGasto=100.0):
-        desde = datetime.now() - timedelta(days=dias)
+        #desde = datetime.now() - timedelta(days=dias)
+        tz = timezone(timedelta(hours=-5))
+        desde = datetime.now(tz) - timedelta(days=dias)
         # sumar ventas por cliente
         q = self.dbSession.query(
             Venta.idCliente,
